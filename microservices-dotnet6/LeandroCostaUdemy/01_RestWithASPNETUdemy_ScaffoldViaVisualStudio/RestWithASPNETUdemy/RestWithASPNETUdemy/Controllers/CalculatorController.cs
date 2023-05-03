@@ -6,11 +6,7 @@ namespace RestWithASPNETUdemy.Controllers
     [Route("[controller]")]
     public class CalculatorController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
+        
         private readonly ILogger<CalculatorController> _logger;
 
         public CalculatorController(ILogger<CalculatorController> logger)
@@ -18,16 +14,37 @@ namespace RestWithASPNETUdemy.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("sum/{firstNumber}/{secondNumber}")]
+        public IActionResult Get(string firstNumber, string secondNumber)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            if (IsNumeric(firstNumber) && IsNumeric(firstNumber)) 
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                var sum = ConvertToDecimal(firstNumber) + ConvertToDecimal(secondNumber);
+                return Ok(sum.ToString());
+            }
+
+            return BadRequest("Entrada Invalida");
+        }
+
+        private decimal ConvertToDecimal(string strtNumber)
+        {
+            decimal decimalValue;
+            if (decimal.TryParse(strtNumber, out decimalValue)) 
+            {
+                return decimalValue;
+            }
+            return 0;
+        }
+
+        private bool IsNumeric(string strtNumber)
+        {
+            double number;
+            bool isNumber = double.TryParse(
+                strtNumber, 
+                System.Globalization.NumberStyles.Any, 
+                System.Globalization.NumberFormatInfo.InvariantInfo, 
+                out number);
+            return isNumber;
         }
     }
 }
